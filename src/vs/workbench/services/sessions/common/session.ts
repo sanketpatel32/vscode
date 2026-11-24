@@ -675,6 +675,8 @@ export interface ISessionChangeset {
 	readonly modifiedCheckpointRef: IObservable<string | undefined>;
 	/** The capabilities of this changeset. */
 	readonly capabilities?: ISessionChangesetCapabilities;
+	/** Present while the user can change the base branch this changeset compares against. */
+	readonly baseBranchSelection?: IObservable<ISessionChangesetBaseBranchSelection | undefined>;
 
 	/**
 	 * Invoke an operation declared in {@link operations}. `target` must be
@@ -742,6 +744,22 @@ export interface ISessionChangesetOperation {
 export interface ISessionChangesetCapabilities {
 	/** Whether the changeset supports review workflow. */
 	readonly review?: boolean;
+}
+
+/** The branches a changeset can compare against. */
+export interface ISessionChangesetBaseBranchCandidates {
+	/** Branch names, exactly as the base is recorded and shown (for example `origin/main`), most recently committed first. */
+	readonly branches: readonly string[];
+	/** The base a new session of the repository starts from, when the repository has a default branch. */
+	readonly defaultBranch?: string;
+}
+
+/** Changes the base branch a changeset compares against. */
+export interface ISessionChangesetBaseBranchSelection {
+	/** Lists the branches the changeset can compare against, without changing anything. */
+	getCandidates(token: CancellationToken): Promise<ISessionChangesetBaseBranchCandidates>;
+	/** Compares the changeset against `branch`, a name from {@link getCandidates}, exactly as listed. */
+	setBaseBranch(branch: string): Promise<void>;
 }
 
 /**
